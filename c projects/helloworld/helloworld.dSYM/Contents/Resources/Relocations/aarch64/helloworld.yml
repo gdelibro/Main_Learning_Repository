@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/gdelibro/Documents/Visual Studio Code/c projects/helloworld/helloworld'
+relocations:     []
+...
