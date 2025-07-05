@@ -1,0 +1,4 @@
+VST3s can be programmed in either single- or dual-component architectures
+    audio processing (Processor) and GUI interface (Controller) either in one or two separate C++ objects.
+    base classes: AudioEffect & EditController (dual), or SingleComponentEffect
+MacOS uses bundleIDs which are unique to the program, look into when completing a project.

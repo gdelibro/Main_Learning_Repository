@@ -1,0 +1,62 @@
+introduction
+
+numerical representation of audio data
+    number of quantization levels is q = 2^n, where n is the bit depth
+        ex. CDs have a q of 16, so q = 2^16 = 65,536 values
+    unipolar (unsigned) ranges from 0 to +max or -min to 0.
+    bipolar (signed) ranges from -min to +max, with 0 in the middle. (most common)
+    data can be integer or fractional: integer is simple (0 to max), fractional is a bit more complicated...
+        fractional takes the form of INT.FRAC, like 12.09
+            can be fixed-point or floating-point; fixed defined the number of digits on each side of the decimal, while floating does not.
+                floating-point ensures that exact opposites (-5 & +5) always add to 0.
+    since the number of quantization levels is always even (2^n), including 0 in bipolar encoding guarentees an uneven balance between pos and neg.
+        possible fix is to treat -32,768 (min with no correlating max) as -32,767 (correlates to +32,767)
+        DACs usually used signed integers, but audio signal processors like floating-point fractions.
+            audio file decoders convert this into a float within the range [-1.0, 1.0], or in reality, [-1.0, 0.9999].
+            multiplying integer-based audio often yields a result that is outside the integer range.
+                using the range of [-1.0, 1.0] solves this problem.
+                conversion from an integer-based value to a fractional value w/in this range:
+                    fraction = integer / (2^n)
+                    integer = fraction * 2^n
+
+basic DSP test signals
+    direct current & step (0 Hz): input sequence of the set {...0, 0, 1, 1, 1...}
+        the step is the change from 0 to 1, while the DC portion is the stagnant value of 1.
+    nyquist input sequence: independent of the selected sample rate, uses the set {...-1, 1, -1, 1...}
+        highest freqency that can be encoded, uses 2 samples per cycle, at the min and max values, respectively.
+    1/2 nyquist: same as above, but uses four samples per cycle, or {...-1, 0, 1, 0...}
+    1/4 nyquist: same as above, but eight samples per cycle, or {...0.0, 0.707, 1.0, 0.707, 0.0, -0.707, -1.0, -0.707, 0.0...}
+    impulse: a single sample of max value, preceded and followed by zeroes {...0, 0, 0, 0, 1, 0, 0, 0, 0...}
+        used to test freqency responses or something.
+
+signal bookkeeping
+    the input sequence is x(n)
+    the output sequence is y(n)
+    the impulse response is h(n), represents the output of the algorithm for a single sample input / impulse.
+
+    the current sample is labelled 'n'
+    any previous sample is labelled 'n - a' (previous sample would be n - 1)
+    any future sample is labelled 'n + a'
+    once the *next* sample interval is reached, all references are reset, and the next sample is labelled as 'n' (the new current sample)
+    delay is represented by a box with a z inside.
+        z will have an exponent representing the delay interval, with the same syntax as above.
+        ex. z^4 indicates a delay of 4 samples.
+        positive delay (z^+a) is possible, but only with non-real-time DSP (aka pre-recorded audio)
+        when a sample is passed into the delay processor, the current sample in the delay is ejected, creating (n - 1)
+
+algorithm equations
+    output of a DSP algorithm is called y(n) and the equation that defines is is called the difference equation.
+    if a signal x(n) is multiplied by coefficient a2, then y(n) = a2x(n) is the difference equation.
+    gain & attenuation represented by coefficients above 1.0 and below 1.0, respectively.
+        if the coefficient is negative, phase inversion occurs.
+        multiple channels of audio summed together could easily produce a sample that is outside the range of [-1.0, 1.0]
+            attenuation values are added to the equation on each 'branch', with a value of 1/N, where N is the number of channels combined.
+            ex. for three-channel mixing, each signal will be multiplied by 1/3.
+
+feed-forward and feed-back
+    two common structures: a delay is placed in front of a sample's path and added to the sum of the input path.
+        feed-back is similar, but the delay is placed after the summing module, feeding the sample back into the sum.
+    (page 14 figure 1.10a/b)
+
+
+            
